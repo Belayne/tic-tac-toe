@@ -49,3 +49,9 @@ body {
     text-align: center;
 }
 
+.reset-btn {
+    width: 100px;
+    padding: 10px;
+    font-size: 1.2rem;
+}
+

@@ -6,9 +6,16 @@ const Gameboard = (() => {
         board[index] = mark;
     }
 
+    const reset = () => {
+        for(let i = 0; i < board.length; i++) {
+            board[i] = "";
+        }
+    }
+
     const getBoard = () => board;
 
     return {
+        reset,
         getBoard,
         addMark
     }
@@ -45,9 +52,6 @@ const GameController = (() => {
                 switchPlayer();
             }
         }
-        else {
-            console.log("Already Played")
-        }
         console.table(Gameboard.getBoard())
         console.table(gameStatus);
     }
@@ -68,13 +72,21 @@ const GameController = (() => {
         }
     }
 
+    const reset = () => {
+        Gameboard.reset();
+        gameStatus.state = "Playing",
+        gameStatus.winner = "";
+        currentPlayer = playerOne;
+    }
+
     const getGameStatus = () => gameStatus;
     const getCurrentPlayer = () => currentPlayer;
 
     return {
         getGameStatus,
         getCurrentPlayer,
-        playRound
+        playRound,
+        reset
     }
 
 })();
@@ -82,6 +94,7 @@ const GameController = (() => {
 const DisplayController = (() => {
     const boardDiv = document.querySelector(".board")
     const messageDiv = document.querySelector(".message");
+    const board = Gameboard.getBoard();
 
     const pickMessage = (state) => {
         let message = (state === "Playing")? `It's ${GameController.getCurrentPlayer().getName()}'s turn.`:
@@ -99,9 +112,30 @@ const DisplayController = (() => {
         }
     })();
 
+    const addResetBtn = (() => {
+        const resetBtn = document.createElement('button');
+        resetBtn.setAttribute('type', 'button');
+        resetBtn.classList.add('reset-btn');
+        resetBtn.textContent = "Reset";
+        resetBtn.addEventListener("click", resetClick)
+        boardDiv.parentElement.appendChild(resetBtn);
+    })()
+
+    function resetClick() {
+        GameController.reset();
+        clearGrid();
+        updateMessage();
+    }
+
+    function clearGrid() {
+        for(let gridItem of boardDiv.childNodes) {
+            gridItem.textContent = "";
+        }
+    }
+
     function updateGrid(index){
         const clickedItem =  boardDiv.querySelector(`.grid-item[data-id="${index}"]`);
-        clickedItem.textContent = Gameboard.getBoard()[index];
+        clickedItem.textContent = board[index];
     }
 
     const updateMessage = () => {
