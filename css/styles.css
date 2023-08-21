@@ -96,5 +96,9 @@ body {
     .start-btn {
         grid-column: 1/2;
     }
+
+    html {
+        font-size: 11px;
+    }
 }
 
