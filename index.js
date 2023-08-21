@@ -29,16 +29,15 @@ const Player = (name, mark) => {
 }
 
 const GameController = (() => {
-    const playerOne = Player("Player One", "X")
-    const playerTwo = Player("Player Two", "O")
+    let playerOne;
+    let playerTwo;
+    let currentPlayer;
     const WIN_CONDITIONS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
     const board = Gameboard.getBoard();
     const gameStatus = {
-        state: "Playing",
+        state: "Start",
         winner: ""
     }
-
-    let currentPlayer = playerOne;
 
     const switchPlayer = () => {
         currentPlayer = (currentPlayer == playerOne)? playerTwo: playerOne;
@@ -81,45 +80,81 @@ const GameController = (() => {
 
     const getGameStatus = () => gameStatus;
     const getCurrentPlayer = () => currentPlayer;
+    const startGame = (playerOneName, playerTwoName) => {
+        gameStatus.state = "Playing";
+        playerOne = Player(playerOneName, "X");
+        playerTwo = Player(playerTwoName, "O");
+        currentPlayer = playerOne;
+    }
 
     return {
         getGameStatus,
         getCurrentPlayer,
         playRound,
-        reset
+        reset,
+        startGame
     }
 
 })();
 
 const DisplayController = (() => {
-    const boardDiv = document.querySelector(".board")
+    const boardDiv = document.createElement("div");
+    boardDiv.classList.add('board');
+    const startDiv = document.querySelector('.start-div');
     const messageDiv = document.querySelector(".message");
+    const startBtn = document.querySelector(".start-btn")
     const board = Gameboard.getBoard();
 
     const pickMessage = (state) => {
-        let message = (state === "Playing")? `It's ${GameController.getCurrentPlayer().getName()}'s turn.`:
-            (state === "Draw")? `It's a Draw!`: `${GameController.getGameStatus().winner} wins!`;
+        switch(state) {
+            case "Start": { 
+                message = "Enter your name, X goes first.";
+                break;
+            }
+            case "Playing": {
+                message = `It's ${GameController.getCurrentPlayer().getName()}'s (${GameController.getCurrentPlayer().getMark()}) turn.`;
+                break;
+            }
+            case "Draw": {
+                message = `It's a Draw!`;
+                break;
+            }
+            case "Game Won": {
+                message = `${GameController.getGameStatus().winner} wins!`;
+                break;
+            }
+        }
         
         return message;
     }
 
-    const createGrid = (() => {
+    const createGame = () => {
+        const playerOneName = document.querySelector('#playerOne').value;
+        const playerTwoName = document.querySelector('#playerTwo').value;
+        startDiv.insertAdjacentElement("beforebegin", boardDiv);
+        startDiv.removeChild(startBtn)
+        document.querySelector('body').removeChild(startDiv)
+        addResetBtn();
+
         for(let i = 0; i < 9; i++){
             let gridItem = document.createElement('div');
             gridItem.classList.add('grid-item')
             gridItem.setAttribute('data-id', i)
             boardDiv.appendChild(gridItem);
         }
-    })();
 
-    const addResetBtn = (() => {
+        GameController.startGame(playerOneName, playerTwoName);
+        updateMessage();
+    }
+
+    const addResetBtn = () => {
         const resetBtn = document.createElement('button');
         resetBtn.setAttribute('type', 'button');
         resetBtn.classList.add('reset-btn');
         resetBtn.textContent = "Reset";
         resetBtn.addEventListener("click", resetClick)
         boardDiv.parentElement.appendChild(resetBtn);
-    })()
+    }
 
     function resetClick() {
         GameController.reset();
@@ -156,6 +191,8 @@ const DisplayController = (() => {
             updateMessage();
         }
     }
+    
+    startBtn.addEventListener("click", createGame)
 
     boardDiv.addEventListener("click", playerClick)
 
