@@ -56,20 +56,13 @@ body {
     font-size: 1.2rem;
 }
 
-.start-screen {
-    position: absolute;
-    height: 100vh;
-    width: 100vw;
-    background-color: white;
-}
-
-.start-div {
+.start-form {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
 }
 
-.start-div div {
+.start-form div {
     display: flex;
     gap: 10px;
     flex-direction: column;

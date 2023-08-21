@@ -100,41 +100,19 @@ const GameController = (() => {
 const DisplayController = (() => {
     const boardDiv = document.createElement("div");
     boardDiv.classList.add('board');
-    const startDiv = document.querySelector('.start-div');
+    const startForm = document.querySelector('.start-form');
     const messageDiv = document.querySelector(".message");
-    const startBtn = document.querySelector(".start-btn")
+    const startBtn = document.querySelector(".start-btn");
     const board = Gameboard.getBoard();
 
-    const pickMessage = (state) => {
-        switch(state) {
-            case "Start": { 
-                message = "Enter your name, X goes first.";
-                break;
-            }
-            case "Playing": {
-                message = `It's ${GameController.getCurrentPlayer().getName()}'s (${GameController.getCurrentPlayer().getMark()}) turn.`;
-                break;
-            }
-            case "Draw": {
-                message = `It's a Draw!`;
-                break;
-            }
-            case "Game Won": {
-                message = `${GameController.getGameStatus().winner} wins!`;
-                break;
-            }
-        }
-        
-        return message;
-    }
-
+    //Gets players' names, removes start screen, creates the board and starts the game
     const createGame = () => {
         const playerOneName = document.querySelector('#playerOne').value;
         const playerTwoName = document.querySelector('#playerTwo').value;
-        startDiv.insertAdjacentElement("beforebegin", boardDiv);
-        startDiv.removeChild(startBtn)
-        document.querySelector('body').removeChild(startDiv)
-        addResetBtn();
+        startForm.insertAdjacentElement("beforebegin", boardDiv);
+        startForm.removeChild(startBtn)
+        document.querySelector('body').removeChild(startForm)
+        createResetBtn();
 
         for(let i = 0; i < 9; i++){
             let gridItem = document.createElement('div');
@@ -147,16 +125,16 @@ const DisplayController = (() => {
         updateMessage();
     }
 
-    const addResetBtn = () => {
+    const createResetBtn = () => {
         const resetBtn = document.createElement('button');
         resetBtn.setAttribute('type', 'button');
         resetBtn.classList.add('reset-btn');
         resetBtn.textContent = "Reset";
-        resetBtn.addEventListener("click", resetClick)
+        resetBtn.addEventListener("click", onResetClick)
         boardDiv.parentElement.appendChild(resetBtn);
     }
 
-    function resetClick() {
+    function onResetClick() {
         GameController.reset();
         clearGrid();
         updateMessage();
@@ -181,6 +159,30 @@ const DisplayController = (() => {
         messageDiv.querySelector('p').textContent = message;
     };
 
+    const pickMessage = (state) => {
+        switch(state) {
+            case "Start": { 
+                message = "Enter your name, X goes first.";
+                break;
+            }
+            case "Playing": {
+                message = `It's ${GameController.getCurrentPlayer().getName()}'s (${GameController.getCurrentPlayer().getMark()}) turn.`;
+                break;
+            }
+            case "Draw": {
+                message = `It's a Draw!`;
+                break;
+            }
+            case "Game Won": {
+                message = `${GameController.getGameStatus().winner} wins!`;
+                break;
+            }
+        }
+        
+        return message;
+    }
+
+    //Set inital message
     updateMessage();
 
     function playerClick(e) {
@@ -192,7 +194,7 @@ const DisplayController = (() => {
         }
     }
     
-    startBtn.addEventListener("click", createGame)
+    startForm.addEventListener("submit", createGame)
 
     boardDiv.addEventListener("click", playerClick)
 
